@@ -38,8 +38,13 @@ def main(args):
     # model
     print("setting up model ...")
     model = HRNetV2(40, 19)
-    model = nn.DataParallel(model, device_ids=cfg.CUDA.CUDA_NUM)
-    model.to(base_device)
+    if cfg.CUDA.USE_CUDA:
+        #model = nn.DataParallel(model, device_ids=cfg.CUDA.CUDA_NUM)
+        model = convert_model(model)
+        model.to(base_device)
+        model = DataParallelWithCallback(model, device_ids=cfg.CUDA.CUDA_NUM)
+    
+    
     if cfg.TRAIN.CHECKPOINT != '':
         model.load_state_dict(torch.load(cfg.TRAIN.CHECKPOINT))
     
@@ -49,7 +54,7 @@ def main(args):
         
     # optimizer
     optimizer = torch.optim.SGD(model.parameters(),lr=cfg.TRAIN.LERNING_RATE, momentum=0.9, weight_decay=0.0005)
-    scheduler = PolynomialLRDecay(optimizer, max_decay_steps=100, end_learning_rate=0.001 power=0.9)
+    scheduler = PolynomialLRDecay(optimizer, max_decay_steps=100, end_learning_rate=0.001, power=0.9)
     
     # loss
     loss = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')

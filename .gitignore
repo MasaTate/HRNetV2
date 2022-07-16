@@ -128,7 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Ignore logs and checkpoint and other dirs
+# Ignore logs and checkpoint and other dirs and files
 logs/
 checkpoint/
 results/
+requirements.py
