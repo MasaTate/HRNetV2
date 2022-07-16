@@ -13,13 +13,13 @@ from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 import os
 from tqdm import tqdm
-
+from sync_batchnorm import convert_model, DataParallelWithCallback
 
 def main(args):
     cfg = load_config(args.config_path)
-    
-    device = torch.device('cuda:'+str(cfg.CUDA.CUDA_NUM) if cfg.CUDA.USE_CUDA and torch.cuda.is_available() else 'cpu')
-    print("device:"+str(device))
+    device_print = 'cuda:'+ ",".join(map(str,cfg.CUDA.CUDA_NUM)) if cfg.CUDA.USE_CUDA and torch.cuda.is_available() else 'cpu'
+    print("device:"+str(device_print))
+    base_device = torch.device('cuda:'+ str(cfg.CUDA.CUDA_NUM[0]) if cfg.CUDA.USE_CUDA and torch.cuda.is_available() else 'cpu')
     
     # prepare dataset
     train_transform = t.PairCompose([
@@ -37,7 +37,9 @@ def main(args):
     
     # model
     print("setting up model ...")
-    model = HRNetV2(40, 19).to(device)
+    model = HRNetV2(40, 19)
+    model = nn.DataParallel(model, device_ids=cfg.CUDA.CUDA_NUM)
+    model.to(base_device)
     if cfg.TRAIN.CHECKPOINT != '':
         model.load_state_dict(torch.load(cfg.TRAIN.CHECKPOINT))
     
@@ -46,8 +48,8 @@ def main(args):
         os.makedirs(cfg.TRAIN.SAVE_WEIGHT_PATH)
         
     # optimizer
-    optimizer = torch.optim.SGD(model.parameters(),lr=0.01, momentum=0.9, weight_decay=0.0005)
-    scheduler = PolynomialLRDecay(optimizer, max_decay_steps=10, power=0.9)
+    optimizer = torch.optim.SGD(model.parameters(),lr=cfg.TRAIN.LERNING_RATE, momentum=0.9, weight_decay=0.0005)
+    scheduler = PolynomialLRDecay(optimizer, max_decay_steps=100, end_learning_rate=0.001 power=0.9)
     
     # loss
     loss = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
@@ -65,8 +67,8 @@ def main(args):
             model.train()
             step = epoch * len(train_dataloader) + i
             
-            image = image.to(device, dtype=torch.float32)
-            label = label.to(device, dtype=torch.long)
+            image = image.to(base_device, dtype=torch.float32)
+            label = label.to(base_device, dtype=torch.long)
             
             optimizer.zero_grad()
             
@@ -98,8 +100,8 @@ def main(args):
             
             if (step + 1) % cfg.TRAIN.SAVE_WEIGHT_STEP == 0:
                 torch.save(model.state_dict(), cfg.TRAIN.SAVE_WEIGHT_PATH + f'/checkpoint_epoch{epoch}_iter{step}.pth')
-        
-        torch.save(model.state_dict(), cfg.TRAIN.SAVE_WEIGHT_PATH + f'/checkpoint_epoch{epoch}_final.pth')
+            
+        torch.save(model.module.state_dict(), cfg.TRAIN.SAVE_WEIGHT_PATH + f'/checkpoint_epoch{epoch}_final.pth')
         scheduler.step()
             
     """
