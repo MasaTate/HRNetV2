@@ -108,27 +108,7 @@ def main(args):
             
         torch.save(model.module.state_dict(), cfg.TRAIN.SAVE_WEIGHT_PATH + f'/checkpoint_epoch{epoch}_final.pth')
         scheduler.step()
-            
-    """
-    for i in range(0, 1):
-        image_save = image[i].cpu().numpy()
-        target_save = target[i].cpu().numpy()
-        image_save = (denorm(image_save) * 255).transpose(1, 2, 0).astype(np.uint8)
-        target_save = train_dataloader.dataset.decode_target(target_save).astype(np.uint8)
-    
-        Image.fromarray(image_save).save('image_test_{}.png'.format(i))
-        Image.fromarray(target_save).save('target_test_{}.png'.format(i))
-    image, target = tmp.next()
-    for i in range(1, 2):
-        image_save = image[i].cpu().numpy()
-        target_save = target[i].cpu().numpy()
-        image_save = (denorm(image_save) * 255).transpose(1, 2, 0).astype(np.uint8)
-        target_save = train_dataloader.dataset.decode_target(target_save).astype(np.uint8)
-        
-        Image.fromarray(image_save).save('image_test_{}.png'.format(i))
-        Image.fromarray(target_save).save('target_test_{}.png'.format(i))
-    
-    """
+
 def load_config(config_path=None):
     cfg = get_cfg_defaults()
     if config_path is not None:
