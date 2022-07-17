@@ -37,7 +37,7 @@ def main(args):
     
     # model
     print("setting up model ...")
-    model = HRNetV2(40, 19)
+    model = HRNetV2(cfg.MODEL.C, 19)
     if cfg.CUDA.USE_CUDA:
         #model = nn.DataParallel(model, device_ids=cfg.CUDA.CUDA_NUM)
         model = convert_model(model)

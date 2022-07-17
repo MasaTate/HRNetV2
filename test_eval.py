@@ -33,7 +33,7 @@ def main(args):
     
     # model
     print("setting up model ...")
-    model = HRNetV2(40, 19)
+    model = HRNetV2(cfg.MODEL.C, 19)
     model.to(device)
     if cfg.TEST.CHECKPOINT != '':
         print("loading pretrained model ...")

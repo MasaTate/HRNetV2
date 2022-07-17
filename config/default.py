@@ -13,6 +13,10 @@ _C.DATASET = CN()
 _C.DATASET.ROOT = "/work/masatate/dataset/Cityscapes"
 _C.DATASET.NUM_CLASSES = 19
 
+# model
+_C.MODEL = CN()
+_C.MODEL.C = 40
+
 # training
 _C.TRAIN = CN()
 
@@ -34,7 +38,7 @@ _C.TEST = CN()
 
 _C.TEST.BATCH_SIZE = 1
 _C.TEST.NUM_WORKERS = 2
-_C.TEST.CHECKPOINT = './checkpoint/checkpoint_epoch40_final.pth'
+_C.TEST.CHECKPOINT = './checkpoint/checkpoint_epoch139_final.pth'
 _C.TEST.RESULTS_NUM = 3
 _C.TEST.RESULTS_PATH = './results'
 
