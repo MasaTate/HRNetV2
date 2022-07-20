@@ -3,7 +3,9 @@
 This the non-official reimplementation of [HRNetV2 for Semantic Segmentation](https://arxiv.org/abs/1904.04514). ([Official code](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1))  
 
 Although HRNet-OCR is implemented in official code, I implemented pure HRNetV2 without OCR. 
-I evaluated the model only on Cityscapes dataset.
+I evaluated the model only on Cityscapes dataset.  
+
+Please refer to [Qiita article](https://qiita.com/mtsnoopy/items/2f5e47d58751b5dee012) for more imformation about this project. (Japanese)
 
 ## Set up
 Set up your environment by running
